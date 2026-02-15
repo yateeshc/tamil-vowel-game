@@ -191,9 +191,98 @@
             }
           };
 
+          // Audio file mapping - add your audio files to the /audio folder in GitHub
+          const audioUrls = {
+            'க': './audio/ka.mp3',
+            'கா': './audio/kaa.mp3',
+            'கி': './audio/ki.mp3',
+            'கீ': './audio/kee.mp3',
+            'கு': './audio/ku.mp3',
+            'கூ': './audio/koo.mp3',
+            'கெ': './audio/ke.mp3',
+            'கே': './audio/kay.mp3',
+            'கை': './audio/kai.mp3',
+            'கொ': './audio/ko.mp3',
+            'கோ': './audio/koh.mp3',
+            'கௌ': './audio/kau.mp3',
+            'ச': './audio/sa.mp3',
+            'சா': './audio/saa.mp3',
+            'சி': './audio/si.mp3',
+            'சீ': './audio/see.mp3',
+            'சு': './audio/su.mp3',
+            'சூ': './audio/soo.mp3',
+            'செ': './audio/se.mp3',
+            'சே': './audio/say.mp3',
+            'சை': './audio/sai.mp3',
+            'சொ': './audio/so.mp3',
+            'சோ': './audio/soh.mp3',
+            'சௌ': './audio/sau.mp3',
+            'த': './audio/tha.mp3',
+            'தா': './audio/thaa.mp3',
+            'தி': './audio/thi.mp3',
+            'தீ': './audio/thee.mp3',
+            'து': './audio/thu.mp3',
+            'தூ': './audio/thoo.mp3',
+            'தெ': './audio/the.mp3',
+            'தே': './audio/thay.mp3',
+            'தை': './audio/thai.mp3',
+            'தொ': './audio/tho.mp3',
+            'தோ': './audio/thoh.mp3',
+            'தௌ': './audio/thau.mp3',
+            'ட': './audio/da.mp3',
+            'டா': './audio/daa.mp3',
+            'டி': './audio/di.mp3',
+            'டீ': './audio/dee.mp3',
+            'டு': './audio/du.mp3',
+            'டூ': './audio/doo.mp3',
+            'டெ': './audio/de.mp3',
+            'டே': './audio/day.mp3',
+            'டை': './audio/dai.mp3',
+            'டொ': './audio/do.mp3',
+            'டோ': './audio/doh.mp3',
+            'டௌ': './audio/dau.mp3',
+            'ர': './audio/ra.mp3',
+            'ரா': './audio/raa.mp3',
+            'ரி': './audio/ri.mp3',
+            'ரீ': './audio/ree.mp3',
+            'ரு': './audio/ru.mp3',
+            'ரூ': './audio/roo.mp3',
+            'ரெ': './audio/re.mp3',
+            'ரே': './audio/ray.mp3',
+            'ரை': './audio/rai.mp3',
+            'ரொ': './audio/ro.mp3',
+            'ரோ': './audio/roh.mp3',
+            'ரௌ': './audio/rau.mp3',
+            'ற': './audio/rra.mp3',
+            'றா': './audio/rraa.mp3',
+            'றி': './audio/rri.mp3',
+            'றீ': './audio/rree.mp3',
+            'று': './audio/rru.mp3',
+            'றூ': './audio/rroo.mp3',
+            'றெ': './audio/rre.mp3',
+            'றே': './audio/rray.mp3',
+            'றை': './audio/rrai.mp3',
+            'றொ': './audio/rro.mp3',
+            'றோ': './audio/rroh.mp3',
+            'றௌ': './audio/rrau.mp3'
+          };
+
           const playAudio = () => {
             if (syllables.length > 0) {
-              fallbackToSpeechSynthesis();
+              const currentSyl = syllables[currentIndex].syllable;
+              
+              // Check if we have a recorded audio file for this syllable
+              if (audioUrls[currentSyl]) {
+                const audio = new Audio(audioUrls[currentSyl]);
+                audio.play().catch(err => {
+                  console.log('Audio file not found, using speech synthesis');
+                  // Fallback to speech synthesis if audio file doesn't exist
+                  fallbackToSpeechSynthesis();
+                });
+              } else {
+                // Use speech synthesis for syllables without recorded audio
+                fallbackToSpeechSynthesis();
+              }
             }
           };
 
