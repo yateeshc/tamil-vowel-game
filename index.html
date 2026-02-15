@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Vowel-Consonant Word Game</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+
+        function TamilVowelGame() {
+          const vowels = ['அ', 'ஆ', 'இ', 'ஈ', 'உ', 'ஊ', 'எ', 'ஏ', 'ஐ', 'ஒ', 'ஓ', 'ஔ'];
+          const consonants = ['க', 'ச', 'த', 'ட', 'ர', 'ற'];
+          
+          const [gameMode, setGameMode] = useState('menu');
+          const [syllables, setSyllables] = useState([]);
+          const [currentIndex, setCurrentIndex] = useState(0);
+          const [score, setScore] = useState(0);
+          const [totalSyllables, setTotalSyllables] = useState(0);
+          const [difficulty, setDifficulty] = useState('single');
+          const [selectedConsonants, setSelectedConsonants] = useState([]);
+
+          const getSyllable = (consonant, vowel) => {
+            const syllables = {
+              'க': { 'அ': 'க', 'ஆ': 'கா', 'இ': 'கி', 'ஈ': 'கீ', 'உ': 'கு', 'ஊ': 'கூ', 'எ': 'கெ', 'ஏ': 'கே', 'ஐ': 'கை', 'ஒ': 'கொ', 'ஓ': 'கோ', 'ஔ': 'கௌ' },
+              'ச': { 'அ': 'ச', 'ஆ': 'சா', 'இ': 'சி', 'ஈ': 'சீ', 'உ': 'சு', 'ஊ': 'சூ', 'எ': 'செ', 'ஏ': 'சே', 'ஐ': 'சை', 'ஒ': 'சொ', 'ஓ': 'சோ', 'ஔ': 'சௌ' },
+              'த': { 'அ': 'த', 'ஆ': 'தா', 'இ': 'தி', 'ஈ': 'தீ', 'உ': 'து', 'ஊ': 'தூ', 'எ': 'தெ', 'ஏ': 'தே', 'ஐ': 'தை', 'ஒ': 'தொ', 'ஓ': 'தோ', 'ஔ': 'தௌ' },
+              'ட': { 'அ': 'ட', 'ஆ': 'டா', 'இ': 'டி', 'ஈ': 'டீ', 'உ': 'டு', 'ஊ': 'டூ', 'எ': 'டெ', 'ஏ': 'டே', 'ஐ': 'டை', 'ஒ': 'டொ', 'ஓ': 'டோ', 'ஔ': 'டௌ' },
+              'ர': { 'அ': 'ர', 'ஆ': 'ரா', 'இ': 'ரி', 'ஈ': 'ரீ', 'உ': 'ரு', 'ஊ': 'ரூ', 'எ': 'ரெ', 'ஏ': 'ரே', 'ஐ': 'ரை', 'ஒ': 'ரொ', 'ஓ': 'ரோ', 'ஔ': 'ரௌ' },
+              'ற': { 'அ': 'ற', 'ஆ': 'றா', 'இ': 'றி', 'ஈ': 'றீ', 'உ': 'று', 'ஊ': 'றூ', 'எ': 'றெ', 'ஏ': 'றே', 'ஐ': 'றை', 'ஒ': 'றொ', 'ஓ': 'றோ', 'ஔ': 'றௌ' }
+            };
+            return syllables[consonant][vowel];
+          };
+
+          const getSentence = (syllable) => {
+            const sentences = {
+              'க': 'க என்றால் கபில், கவிதா',
+              'கா': 'கா என்றால் காக்கா, காவல்',
+              'கி': 'கி என்றால் கிளி, கிணறு',
+              'கீ': 'கீ என்றால் கீரை, கீழ்',
+              'கு': 'கு என்றால் குரு, குரங்கு',
+              'கூ': 'கூ என்றால் கூடு, கூட்டம்',
+              'கெ': 'கெ என்றால் கெட்டி, கெஞ்சு',
+              'கே': 'கே என்றால் கேள், கேட்டல்',
+              'கை': 'கை என்றால் கை, கைப்பற்று',
+              'கொ': 'கொ என்றால் கொடி, கொள்',
+              'கோ': 'கோ என்றால் கோபம், கோயில்',
+              'கௌ': 'கௌ என்றால் கௌரவம்',
+              'ச': 'ச என்றால் சபை, சலனம்',
+              'சா': 'சா என்றால் சாதம், சாலை',
+              'சி': 'சி என்றால் சிறு, சிரிப்பு',
+              'சீ': 'சீ என்றால் சீப்பு, சீர்',
+              'சு': 'சு என்றால் சுமை, சுற்றம்',
+              'சூ': 'சூ என்றால் சூடு, சூரியன்',
+              'செ': 'செ என்றால் செவ்வாய், செப்பு',
+              'சே': 'சே என்றால் சேர், சேவல்',
+              'சை': 'சை என்றால் சைக்கிள், சைகை',
+              'சொ': 'சொ என்றால் சொல், சொந்தம்',
+              'சோ': 'சோ என்றால் சோறு, சோம்பல்',
+              'சௌ': 'சௌ என்றால் சௌகரியம்',
+              'த': 'த என்றால் தண்ணீர், தமிழ்',
+              'தா': 'தா என்றால் தாய், தாமரை',
+              'தி': 'தி என்றால் திங்கள், திறமை',
+              'தீ': 'தீ என்றால் தீ, தீபம்',
+              'து': 'து என்றால் துணி, துணை',
+              'தூ': 'தூ என்றால் தூசு, தூரம்',
+              'தெ': 'தெ என்றால் தெரு, தெளிவு',
+              'தே': 'தே என்றால் தேன், தேர்',
+              'தை': 'தை என்றால் தைரியம், தை மாதம்',
+              'தொ': 'தொ என்றால் தொடு, தொழில்',
+              'தோ': 'தோ என்றால் தோள், தோட்டம்',
+              'தௌ': 'தௌ என்றால் தௌிவு',
+              'ட': 'ட என்றால் டம்ளர், டிவி',
+              'டா': 'டா என்றால் டாக்டர், டாஸ்',
+              'டி': 'டி என்றால் டிக்கெட், டிரம்',
+              'டீ': 'டீ என்றால் டீச்சர், டீம்',
+              'டு': 'டு என்றால் டூயூப், டூர்',
+              'டூ': 'டூ என்றால் டூத்பேஸ்ட், டூயூப் லைட்',
+              'டெ': 'டெ என்றால் டென்ட், டென்ஷன்',
+              'டே': 'டே என்றால் டேபிள், டேட்',
+              'டை': 'டை என்றால் டைம், டைவிங்',
+              'டொ': 'டொ என்றால் டொமேட்டோ, டொக்கர்',
+              'டோ': 'டோ என்றால் டோஸ்ட், டோஸை',
+              'டௌ': 'டௌ என்றால் டௌன், டௌலோடு',
+              'ர': 'ர என்றால் ரசம், ரகசியம்',
+              'ரா': 'ரா என்றால் ராஜா, ராத்திரி',
+              'ரி': 'ரி என்றால் ரிஷி, ரிப்பன்',
+              'ரீ': 'ரீ என்றால் ரீல், ரீச்சார்ஜ்',
+              'ரு': 'ரு என்றால் ருசி, ருசியான',
+              'ரூ': 'ரூ என்றால் ரூம், ரூபாய்',
+              'ரெ': 'ரெ என்றால் ரெடி, ரெஸ்க்யூ',
+              'ரே': 'ரே என்றால் ரேடியோ, ரேஸ்',
+              'ரை': 'ரை என்றால் ரைல்வே, ரைஸ்',
+              'ரொ': 'ரொ என்றால் ரொம்ப, ரொக்கம்',
+              'ரோ': 'ரோ என்றால் ரோஜா, ரோடு',
+              'ரௌ': 'ரௌ என்றால் ரௌண்ட்',
+              'ற': 'ற என்றால் றம்யம்',
+              'றா': 'றா என்றால் றானி, றாணி',
+              'றி': 'றி என்றால் றிப்பன், றிவியூ',
+              'றீ': 'றீ என்றால் றீடர்',
+              'று': 'று என்றால் றுசி',
+              'றூ': 'றூ என்றால் றூலர்',
+              'றெ': 'றெ என்றால் றெண்டு',
+              'றே': 'றே என்றால் றேஞ்சு',
+              'றை': 'றை என்றால் றைட்',
+              'றொ': 'றொ என்றால் றொம்ப',
+              'றோ': 'றோ என்றால் றோஸ்',
+              'றௌ': 'றௌ என்றால் றௌண்ட்'
+            };
+            return sentences[syllable] || syllable;
+          };
+
+          const shuffleArray = (array) => {
+            return [...array].sort(() => Math.random() - 0.5);
+          };
+
+          const startGame = (mode, customConsonants = null) => {
+            let allSyllables = [];
+            
+            if (mode === 'single') {
+              const randomConsonant = consonants[Math.floor(Math.random() * consonants.length)];
+              allSyllables = vowels.map(v => {
+                const syllable = getSyllable(randomConsonant, v);
+                return {
+                  syllable: syllable,
+                  consonant: randomConsonant,
+                  vowel: v,
+                  sentence: getSentence(syllable)
+                };
+              });
+            } else if (mode === 'two') {
+              const randomConsonants = shuffleArray(consonants).slice(0, 2);
+              randomConsonants.forEach(c => {
+                vowels.forEach(v => {
+                  const syllable = getSyllable(c, v);
+                  allSyllables.push({
+                    syllable: syllable,
+                    consonant: c,
+                    vowel: v,
+                    sentence: getSentence(syllable)
+                  });
+                });
+              });
+            } else if (mode === 'custom' && customConsonants && customConsonants.length > 0) {
+              customConsonants.forEach(c => {
+                vowels.forEach(v => {
+                  const syllable = getSyllable(c, v);
+                  allSyllables.push({
+                    syllable: syllable,
+                    consonant: c,
+                    vowel: v,
+                    sentence: getSentence(syllable)
+                  });
+                });
+              });
+            } else {
+              consonants.forEach(c => {
+                vowels.forEach(v => {
+                  const syllable = getSyllable(c, v);
+                  allSyllables.push({
+                    syllable: syllable,
+                    consonant: c,
+                    vowel: v,
+                    sentence: getSentence(syllable)
+                  });
+                });
+              });
+            }
+
+            const shuffled = shuffleArray(allSyllables);
+            setSyllables(shuffled);
+            setCurrentIndex(0);
+            setScore(0);
+            setTotalSyllables(shuffled.length);
+            setGameMode('playing');
+          };
+
+          const nextSyllable = () => {
+            if (currentIndex < syllables.length - 1) {
+              setCurrentIndex(currentIndex + 1);
+              setScore(score + 1);
+            } else {
+              setGameMode('complete');
+            }
+          };
+
+          const playAudio = () => {
+            if (syllables.length > 0) {
+              fallbackToSpeechSynthesis();
+            }
+          };
+
+          const fallbackToSpeechSynthesis = () => {
+            const utterance = new SpeechSynthesisUtterance(syllables[currentIndex].sentence);
+            utterance.lang = 'ta-IN';
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+          };
+
+          const toggleConsonant = (consonant) => {
+            setSelectedConsonants(prev => {
+              if (prev.includes(consonant)) {
+                return prev.filter(c => c !== consonant);
+              } else {
+                return [...prev, consonant];
+              }
+            });
+          };
+
+          const startCustomGame = () => {
+            if (selectedConsonants.length > 0) {
+              setDifficulty('custom');
+              startGame('custom', selectedConsonants);
+            }
+          };
+
+          const currentSyllable = syllables[currentIndex];
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-8">
+              <div className="max-w-2xl mx-auto">
+                <div className="text-center mb-8">
+                  <h1 className="text-4xl font-bold text-purple-800 mb-2">🎲 தமிழ் மிக்ஸ் விளையாட்டு</h1>
+                  <p className="text-purple-700">Mixed Tamil Syllables Game</p>
+                </div>
+
+                {gameMode === 'menu' && (
+                  <div className="bg-white rounded-lg shadow-lg p-8">
+                    <h2 className="text-2xl font-bold text-center mb-8 text-purple-800">Choose Difficulty</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                      <button
+                        onClick={() => startGame('single')}
+                        className="bg-gradient-to-br from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-8 rounded-lg transform transition hover:scale-105 shadow-md"
+                      >
+                        <div className="text-3xl mb-2">1️⃣</div>
+                        <div>Single</div>
+                        <div className="text-sm">1 Consonant</div>
+                        <div className="text-sm">12 Syllables</div>
+                      </button>
+                      
+                      <button
+                        onClick={() => startGame('two')}
+                        className="bg-gradient-to-br from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-8 rounded-lg transform transition hover:scale-105 shadow-md"
+                      >
+                        <div className="text-3xl mb-2">2️⃣</div>
+                        <div>Double</div>
+                        <div className="text-sm">2 Consonants</div>
+                        <div className="text-sm">24 Syllables</div>
+                      </button>
+                      
+                      <button
+                        onClick={() => startGame('all')}
+                        className="bg-gradient-to-br from-orange-400 to-red-400 hover:from-orange-500 hover:to-red-500 text-white font-bold py-8 rounded-lg transform transition hover:scale-105 shadow-md"
+                      >
+                        <div className="text-3xl mb-2">⭐</div>
+                        <div>Master</div>
+                        <div className="text-sm">All 6 Consonants</div>
+                        <div className="text-sm">72 Syllables</div>
+                      </button>
+                    </div>
+
+                    <div className="border-t pt-8">
+                      <h3 className="text-xl font-bold text-center mb-4 text-purple-800">Or Choose Your Own Letters</h3>
+                      <p className="text-center text-gray-600 mb-4 text-sm">Select one or more consonants to practice</p>
+                      
+                      <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+                        {consonants.map(consonant => (
+                          <button
+                            key={consonant}
+                            onClick={() => toggleConsonant(consonant)}
+                            className={`py-6 rounded-lg font-bold text-2xl transform transition hover:scale-105 ${
+                              selectedConsonants.includes(consonant)
+                                ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-lg'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            {consonant}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={startCustomGame}
+                        disabled={selectedConsonants.length === 0}
+                        className={`w-full py-4 rounded-lg font-bold text-lg transition ${
+                          selectedConsonants.length > 0
+                            ? 'bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {selectedConsonants.length === 0
+                          ? 'Select at least one letter'
+                          : `Start with ${selectedConsonants.join(', ')} (${selectedConsonants.length * 12} syllables)`
+                        }
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {gameMode === 'playing' && currentSyllable && (
+                  <div className="bg-white rounded-lg shadow-lg p-8">
+                    <div className="text-center mb-6">
+                      <p className="text-sm text-gray-600 mb-2">Progress: {currentIndex + 1} of {totalSyllables}</p>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-purple-400 to-pink-400 h-3 rounded-full transition-all"
+                          style={{ width: `${((currentIndex + 1) / totalSyllables) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="text-center">
+                      <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-8 mb-6">
+                        <div className="text-6xl font-bold text-purple-800 mb-4">
+                          {currentSyllable.syllable}
+                        </div>
+                        <div className="flex justify-center gap-4 text-lg mb-4">
+                          <span className="bg-blue-200 text-blue-800 px-4 py-2 rounded font-bold">
+                            {currentSyllable.consonant}
+                          </span>
+                          <span className="text-2xl">+</span>
+                          <span className="bg-pink-200 text-pink-800 px-4 py-2 rounded font-bold">
+                            {currentSyllable.vowel}
+                          </span>
+                        </div>
+                        <div className="text-xl text-gray-700 mt-4 font-semibold">
+                          {currentSyllable.sentence}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={playAudio}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 mx-auto mb-6 transition"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                        Hear It
+                      </button>
+
+                      <button
+                        onClick={nextSyllable}
+                        className="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition w-full md:w-auto"
+                      >
+                        ✓ Got it! Next →
+                      </button>
+                    </div>
+
+                    <div className="mt-8 text-center">
+                      <button
+                        onClick={() => setGameMode('menu')}
+                        className="text-purple-700 hover:text-purple-900 font-semibold underline"
+                      >
+                        ← Change Difficulty
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {gameMode === 'complete' && (
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="mb-6">
+                      <svg className="w-20 h-20 mx-auto text-yellow-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                    </div>
+                    <h2 className="text-3xl font-bold text-purple-800 mb-4">Congratulations! 🎉</h2>
+                    <p className="text-2xl font-bold text-green-600 mb-2">
+                      You completed {totalSyllables} syllables!
+                    </p>
+                    <p className="text-lg text-gray-700 mb-8">
+                      Great job practicing mixed Tamil syllables!
+                    </p>
+
+                    <button
+                      onClick={() => setGameMode('menu')}
+                      className="bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-8 rounded-lg text-lg transition inline-flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="16 3 21 3 21 8"></polyline>
+                        <line x1="4" y1="20" x2="21" y2="3"></line>
+                        <polyline points="21 16 21 21 16 21"></polyline>
+                        <line x1="15" y1="15" x2="21" y2="21"></line>
+                        <line x1="4" y1="4" x2="9" y2="9"></line>
+                      </svg>
+                      Play Again with Mix
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        ReactDOM.render(<TamilVowelGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
